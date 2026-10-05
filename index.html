@@ -41,7 +41,6 @@
   </script>
 
   <style>
-    /* Safe-area insets pour encoches mobiles */
     body {
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
@@ -58,7 +57,6 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
-    /* Checkbox custom pulse */
     .checkbox-done:checked + label span.item-text {
       text-decoration: line-through;
       color: #94a3b8;
@@ -67,7 +65,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased select-none pb-24">
 
-  <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 py-3 shadow-xs">
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 py-3 shadow-xs">
     <div class="max-w-md mx-auto flex items-center justify-between">
       <div class="flex items-center space-x-2.5">
         <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-teal-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20 text-lg">
@@ -96,12 +94,18 @@
     <section id="tab-content-menu" class="space-y-4">
       <div class="flex items-center justify-between px-1">
         <div>
-          <h2 class="text-lg font-bold text-slate-900">Menu des 7 jours</h2>
-          <p class="text-xs text-slate-500">Repas sains, rapides et adaptés à bébé</p>
+          <h2 id="section-title" class="text-lg font-bold text-slate-900">Menu des 7 jours</h2>
+          <p id="section-subtitle" class="text-xs text-slate-500">Repas sains, rapides et adaptés à bébé</p>
         </div>
-        <span id="recipe-count-badge" class="px-2.5 py-1 text-xs font-semibold rounded-full bg-slate-200 text-slate-700">
-          7 repas
+        <span id="recipe-count-badge" class="px-2.5 py-1 text-xs font-semibold rounded-full bg-teal-100 text-teal-800">
+          7 sur 40 dispo
         </span>
+      </div>
+
+      <div class="relative">
+        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+        <input id="recipe-search-input" type="search" oninput="handleSearch(this.value)" placeholder="Chercher une recette, un ingrédient…" autocomplete="off" class="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-white border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500 select-text">
+        <button id="btn-clear-search" onclick="clearSearch()" aria-label="Effacer la recherche" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 text-xs font-bold">✕</button>
       </div>
 
       <!-- Liste des 7 cartes de repas -->
@@ -200,7 +204,6 @@
   </nav>
 
   <script>
-    // Base de recettes adaptées famille (2 adultes + 4 ans + 1 an)
     const RECIPE_DATABASE = [
       {
         id: "rec_1",
@@ -211,7 +214,7 @@
         timeBadge: "Rapide (35 min)",
         costBadge: "Éco (€)",
         image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=600&auto=format&fit=crop&q=80",
-        babyTip: "Prélever la part de bébé avant de saler ou d'épicer. Écraser grossièrement à la fourchette pour obtenir une purée texturée très fondante.",
+        babyTip: "Prélever la part de bébé avant de saler ou d'épicer. Écraser grossièrement à la fourchette pour obtenir une purée texturée fondante.",
         ingredients: [
           { name: "Lentilles corail", amount: 250, unit: "g", aisle: "Épicerie" },
           { name: "Patate douce", amount: 450, unit: "g", aisle: "Fruits & Légumes" },
@@ -236,16 +239,16 @@
         timeBadge: "Moyen (35 min)",
         costBadge: "Éco (€)",
         image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=600&auto=format&fit=crop&q=80",
-        babyTip: "Couper les morceaux de dinde très finement et privilégier des coquillettes très tendres faciles à mâcher avec les gencives.",
+        babyTip: "Couper les morceaux de dinde très finement et privilégier des coquillettes bien tendres faciles à mâcher.",
         ingredients: [
           { name: "Coquillettes", amount: 300, unit: "g", aisle: "Épicerie" },
           { name: "Courgettes", amount: 450, unit: "g", aisle: "Fruits & Légumes" },
-          { name: "Escalope de dinde", amount: 350, unit: "g", aisle: "Boucherie & Poissonnerie" },
+          { name: "Escalope de dinde", amount: 350, unit: "g", aisle: "Boucherie & Frais" },
           { name: "Crème liquide entière", amount: 150, unit: "ml", aisle: "Crèmerie & Frais" },
           { name: "Emmental râpé", amount: 80, unit: "g", aisle: "Crèmerie & Frais" }
         ],
         steps: [
-          "Faire cuire les coquillettes al dente (légèrement plus cuites pour les petits).",
+          "Faire cuire les coquillettes de façon bien fondante pour les enfants.",
           "Couper les courgettes en dés fins et la dinde en lamelles. Les faire revenir à la poêle 8 min.",
           "Mélanger pâtes, légumes, dinde et crème dans un plat à gratin.",
           "Saupoudrer d'emmental râpé et dorer au four 15 min à 190°C."
@@ -260,7 +263,7 @@
         timeBadge: "Express (20 min)",
         costBadge: "Éco (€)",
         image: "https://images.unsplash.com/photo-1510693206972-df098062cb71?w=600&auto=format&fit=crop&q=80",
-        babyTip: "Cuire l'omelette bien à cœur (l'œuf cru est déconseillé aux bébés) puis tailler en lanières de l'épaisseur d'un doigt (finger food autonome).",
+        babyTip: "Cuire l'omelette bien à cœur puis tailler en lanières de l'épaisseur d'un doigt pour faciliter l'autonomie (finger food).",
         ingredients: [
           { name: "Œufs bio", amount: 6, unit: "pièces", aisle: "Crèmerie & Frais" },
           { name: "Épinards frais", amount: 300, unit: "g", aisle: "Fruits & Légumes" },
@@ -271,7 +274,7 @@
           "Faire tomber les épinards lavés 3 minutes dans une poêle avec une noisette de beurre.",
           "Battre les œufs dans un saladier avec la ricotta.",
           "Verser l'appareil dans la poêle et cuire à feu doux jusqu'à ce que le centre soit bien pris.",
-          "Couper en bâtonnets pour les enfants."
+          "Couper en bâtonnets faciles à saisir."
         ]
       },
       {
@@ -283,17 +286,17 @@
         timeBadge: "Rapide (25 min)",
         costBadge: "Modéré (€€)",
         image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&auto=format&fit=crop&q=80",
-        babyTip: "Vérifier soigneusement l'absence absolue d'arêtes. Servir un fleuron de brocoli bien fondant que le bébé peut attraper à pleine main.",
+        babyTip: "Inspecter pour garantir l'absence absolue d'arêtes. Donner un fleuron de brocoli bien fondant que le bébé peut écraser avec les gencives.",
         ingredients: [
-          { name: "Pavé de saumon frais", amount: 350, unit: "g", aisle: "Boucherie & Poissonnerie" },
+          { name: "Pavé de saumon frais", amount: 350, unit: "g", aisle: "Boucherie & Frais" },
           { name: "Brocolis", amount: 500, unit: "g", aisle: "Fruits & Légumes" },
           { name: "Riz basmati", amount: 220, unit: "g", aisle: "Épicerie" },
           { name: "Citron jaune", amount: 1, unit: "pièce", aisle: "Fruits & Légumes" }
         ],
         steps: [
-          "Cuire le riz basmati dans de l'eau bouillante non salée.",
-          "Cuire à la vapeur les fleurettes de brocolis et les morceaux de saumon pendant 12 minutes.",
-          "Assaisonner d'un filet de citron et d'huile d'olive au moment de servir."
+          "Cuire le riz basmati dans de l'eau bouillante sans sel.",
+          "Cuire à la vapeur les fleurettes de brocolis et le saumon pendant 12 minutes.",
+          "Assaisonner d'un filet de citron et d'huile d'olive pour la famille."
         ]
       },
       {
@@ -305,29 +308,29 @@
         timeBadge: "Moyen (35 min)",
         costBadge: "Éco (€)",
         image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&auto=format&fit=crop&q=80",
-        babyTip: "Les carottes doivent être bien fondantes sous les doigts. Utiliser du jambon blanc découenné et dégraissé sans nitrites coupé en dés.",
+        babyTip: "Légumes très fondants écrasables entre deux doigts. Choisir du jambon sans nitrites coupé en dés minuscules.",
         ingredients: [
           { name: "Pommes de terre", amount: 600, unit: "g", aisle: "Fruits & Légumes" },
           { name: "Carottes", amount: 400, unit: "g", aisle: "Fruits & Légumes" },
-          { name: "Jambon blanc de qualité", amount: 4, unit: "tranches", aisle: "Boucherie & Poissonnerie" },
+          { name: "Jambon blanc de qualité", amount: 4, unit: "tranches", aisle: "Boucherie & Frais" },
           { name: "Beurre doux", amount: 25, unit: "g", aisle: "Crèmerie & Frais" }
         ],
         steps: [
           "Éplucher les légumes et les tailler en petits cubes réguliers.",
-          "Faire cuire les cubes à la vapeur ou à l'étouffée avec un fond d'eau et le beurre pendant 18 min.",
+          "Faire cuire les cubes à la vapeur ou à l'étouffée avec un fond d'eau et le beurre 18 min.",
           "Ajouter le jambon coupé en petits carrés 2 minutes avant la fin."
         ]
       },
       {
         id: "rec_6",
-        title: "Pennes aux lentilles vertes, sauce mijotée carottes-tomates",
+        title: "Pennes aux lentilles vertes & sauce mijotée carottes-tomates",
         category: "Végétarien",
         prepTime: "10 min",
         cookTime: "20 min",
         timeBadge: "Express (30 min)",
         costBadge: "Éco (€)",
         image: "https://images.unsplash.com/photo-1621996346565-e3d5d6281056?w=600&auto=format&fit=crop&q=80",
-        babyTip: "Les sauces riches en carottes et tomates douces sont idéales dès 12 mois. Mélanger avec de grosses pennes faciles à manipuler.",
+        babyTip: "Mélanger la sauce très douce avec de grosses pennes faciles à prendre en main par le tout-petit.",
         ingredients: [
           { name: "Pennes", amount: 300, unit: "g", aisle: "Épicerie" },
           { name: "Lentilles vertes cuites", amount: 250, unit: "g", aisle: "Épicerie" },
@@ -336,9 +339,9 @@
           { name: "Parmesan râpé", amount: 40, unit: "g", aisle: "Crèmerie & Frais" }
         ],
         steps: [
-          "Faire revenir les carottes râpées dans une casserole avec une cuillère d'huile.",
+          "Faire revenir les carottes râpées dans une casserole avec de l'huile d'olive.",
           "Ajouter le coulis de tomate et les lentilles cuites égouttées. Laisser mijoter 12 min.",
-          "Faire cuire les pennes et napper de cette sauce bolognaise végétale très douce."
+          "Faire cuire les pennes et napper de cette sauce bolognaise végétale douce."
         ]
       },
       {
@@ -350,9 +353,9 @@
         timeBadge: "Moyen (35 min)",
         costBadge: "Modéré (€€)",
         image: "https://images.unsplash.com/photo-1529042410759-befb1204b468?w=600&auto=format&fit=crop&q=80",
-        babyTip: "Préparer une boulette moelleuse (avec de la mie de pain et du lait dans la farce) pour éviter toute texture sèche.",
+        babyTip: "Boulettes très moelleuses (avec un peu de lait et mie de pain dans la farce) pour éviter toute texture sèche.",
         ingredients: [
-          { name: "Boeuf haché 5% MG", amount: 350, unit: "g", aisle: "Boucherie & Poissonnerie" },
+          { name: "Boeuf haché 5% MG", amount: 350, unit: "g", aisle: "Boucherie & Frais" },
           { name: "Potimarron", amount: 600, unit: "g", aisle: "Fruits & Légumes" },
           { name: "Pommes de terre", amount: 250, unit: "g", aisle: "Fruits & Légumes" },
           { name: "Lait entier", amount: 100, unit: "ml", aisle: "Crèmerie & Frais" },
@@ -373,7 +376,7 @@
         timeBadge: "Moyen (35 min)",
         costBadge: "Éco (€)",
         image: "https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?w=600&auto=format&fit=crop&q=80",
-        babyTip: "Écraser légèrement les petits pois pour le bébé de 1 an afin d'éviter tout risque d'aspiration des grains ronds entiers.",
+        babyTip: "Écraser légèrement les petits pois pour le bébé de 1 an afin d'éviter tout risque d'inhalation des grains ronds.",
         ingredients: [
           { name: "Riz pour risotto", amount: 260, unit: "g", aisle: "Épicerie" },
           { name: "Blancs de poireaux", amount: 300, unit: "g", aisle: "Fruits & Légumes" },
@@ -382,9 +385,9 @@
           { name: "Huile d'olive", amount: 2, unit: "c.à.s", aisle: "Épicerie" }
         ],
         steps: [
-          "Émincer finement les poireaux et les fondre 5 min dans une sauteuse.",
-          "Ajouter le riz à risotto et nacrer 1 minute. Mouiller progressivement avec de l'eau tiède.",
-          "Ajouter les petits pois à mi-cuisson (au bout de 10 min).",
+          "Émincer finement les blancs de poireaux et les fondre 5 min avec l'huile.",
+          "Ajouter le riz et nacrer 1 minute. Mouiller progressivement à l'eau chaude.",
+          "Ajouter les petits pois à mi-cuisson (10 min).",
           "Lier en fin de cuisson avec le mascarpone pour une texture ultra crémeuse."
         ]
       },
@@ -397,30 +400,30 @@
         timeBadge: "Express (25 min)",
         costBadge: "Modéré (€€)",
         image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&auto=format&fit=crop&q=80",
-        babyTip: "Le poisson blanc s'émiette parfaitement sous la langue du tout-petit. Les haricots verts bien cuits sont parfaits pour la préhension.",
+        babyTip: "Le cabillaud s'émiette facilement. Les haricots verts bien cuits et mous se saisissent aisément avec la paume.",
         ingredients: [
-          { name: "Dos de cabillaud", amount: 350, unit: "g", aisle: "Boucherie & Poissonnerie" },
+          { name: "Dos de cabillaud", amount: 350, unit: "g", aisle: "Boucherie & Frais" },
           { name: "Patate douce", amount: 500, unit: "g", aisle: "Fruits & Légumes" },
           { name: "Haricots verts frais ou surgelés", amount: 350, unit: "g", aisle: "Fruits & Légumes" },
           { name: "Huile de colza ou olive", amount: 2, unit: "c.à.s", aisle: "Épicerie" }
         ],
         steps: [
-          "Éplucher les patates douces, les faire cuire à la vapeur avec les haricots verts 15 min.",
+          "Cuire à la vapeur la patate douce en morceaux et les haricots verts 15 min.",
           "Pocher ou poêler délicatement le cabillaud 6 min.",
-          "Écraser la patate douce avec un filet d'huile riche en oméga-3.",
-          "Servir le cabillaud émietté à côté des légumes."
+          "Écraser la patate douce avec un filet d'huile de colza (riche en oméga-3).",
+          "Servir le poisson émietté à côté des légumes."
         ]
       },
       {
         id: "rec_10",
-        title: "Tarte rustique fine aux courgettes & chèvre doux",
+        title: "Tarte fine rustique aux courgettes & chèvre frais doux",
         category: "Tarte",
         prepTime: "15 min",
         cookTime: "25 min",
         timeBadge: "Moyen (40 min)",
         costBadge: "Éco (€)",
         image: "https://images.unsplash.com/photo-1595854341625-f33ee10dbf94?w=600&auto=format&fit=crop&q=80",
-        babyTip: "Découper une petite part sans croûte dure et tiède pour le bébé, la texture du chèvre frais fond sous le palais.",
+        babyTip: "Découper une petite part sans croûte dure et tiède pour le bébé, la texture du chèvre doux fond en bouche.",
         ingredients: [
           { name: "Pâte brisée pur beurre", amount: 1, unit: "rouleau", aisle: "Crèmerie & Frais" },
           { name: "Courgettes", amount: 400, unit: "g", aisle: "Fruits & Légumes" },
@@ -428,8 +431,8 @@
           { name: "Huile d'olive", amount: 1, unit: "c.à.s", aisle: "Épicerie" }
         ],
         steps: [
-          "Dérouler la pâte sur une plaque. Tartiner le fond avec le chèvre frais doux.",
-          "Disposer de fines rondelles de courgettes en rosace.",
+          "Dérouler la pâte sur une plaque. Tartiner le fond avec le chèvre doux.",
+          "Disposer de fines lamelles de courgettes.",
           "Rabattre légèrement les bords et enfourner 25 minutes à 190°C."
         ]
       },
@@ -452,7 +455,7 @@
         ],
         steps: [
           "Rincer les pois chiches.",
-          "Dans une casserole, mélanger le coulis de tomate, le lait de coco et les pois chiches pendant 10 min.",
+          "Dans une casserole, mélanger le coulis, le lait de coco et les pois chiches 10 min.",
           "Ajouter les épinards pour les faire flétrir 3 minutes.",
           "Servir avec le riz blanc chaud."
         ]
@@ -466,15 +469,15 @@
         timeBadge: "Rapide (30 min)",
         costBadge: "Modéré (€€)",
         image: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=600&auto=format&fit=crop&q=80",
-        babyTip: "Tailler le poulet en fibres bien souples et préparer la semoule avec un filet d'huile d'olive pour une consistance facile à attraper.",
+        babyTip: "Poulet effiloché en fibres très tendres. Semoule travaillée à l'huile d'olive facile à attraper en boulettes.",
         ingredients: [
-          { name: "Blancs de poulet", amount: 350, unit: "g", aisle: "Boucherie & Poissonnerie" },
+          { name: "Blancs de poulet", amount: 350, unit: "g", aisle: "Boucherie & Frais" },
           { name: "Carottes", amount: 500, unit: "g", aisle: "Fruits & Légumes" },
           { name: "Semoule moyenne de blé", amount: 200, unit: "g", aisle: "Épicerie" },
           { name: "Beurre doux", amount: 20, unit: "g", aisle: "Crèmerie & Frais" }
         ],
         steps: [
-          "Cuire les carottes en rondelles fines dans un fond d'eau et une noisette de beurre jusqu'à ce qu'elles soient très tendres.",
+          "Cuire les carottes en rondelles dans un fond d'eau et une noisette de beurre jusqu'à consistance très tendre.",
           "Dorer le poulet coupé en petits morceaux dans une poêle.",
           "Gonfler la semoule avec de l'eau chaude et égrainer à la fourchette."
         ]
@@ -488,7 +491,7 @@
         timeBadge: "Express (25 min)",
         costBadge: "Éco (€)",
         image: "https://images.unsplash.com/photo-1584776296944-ab6fb57b0bdd?w=600&auto=format&fit=crop&q=80",
-        babyTip: "Découper de jolis triangles ou barres faciles à prendre en main pour l'enfant de 4 ans et le bébé de 1 an.",
+        babyTip: "Découper de jolis rectangles façon barres que les deux enfants peuvent tenir seuls en main.",
         ingredients: [
           { name: "Œufs bio", amount: 6, unit: "pièces", aisle: "Crèmerie & Frais" },
           { name: "Courgettes", amount: 300, unit: "g", aisle: "Fruits & Légumes" },
@@ -496,9 +499,9 @@
           { name: "Emmental râpé", amount: 50, unit: "g", aisle: "Crèmerie & Frais" }
         ],
         steps: [
-          "Poêler les dés de courgettes et les petits pois avec un peu d'huile d'olive 6 minutes.",
+          "Poêler les dés de courgettes et les petits pois avec l'huile d'olive 6 minutes.",
           "Battre les œufs avec l'emmental, verser sur les légumes.",
-          "Cuire à feu doux avec un couvercle 8 à 10 minutes jusqu'à prise complète."
+          "Cuire à feu doux à couvert 8 à 10 minutes jusqu'à ce que ce soit bien pris."
         ]
       },
       {
@@ -510,18 +513,17 @@
         timeBadge: "Moyen (40 min)",
         costBadge: "Éco (€)",
         image: "https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=600&auto=format&fit=crop&q=80",
-        babyTip: "Texture onctueuse idéale pour débuter à la cuillère ou tremper des bâtonnets de pain moelleux sans sel.",
+        babyTip: "Texture très soyeuse idéale à la cuillère ou pour tremper des bâtonnets de pain moelleux sans sel.",
         ingredients: [
           { name: "Potimarron", amount: 800, unit: "g", aisle: "Fruits & Légumes" },
           { name: "Pommes de terre", amount: 200, unit: "g", aisle: "Fruits & Légumes" },
           { name: "Crème liquide entière", amount: 100, unit: "ml", aisle: "Crèmerie & Frais" },
-          { name: "Pain de mie ou baguette", amount: 2, unit: "tranches", aisle: "Épicerie" }
+          { name: "Pain de mie ou baguette", amount: 2, unit: "tranches", aisle: "Boulangerie" }
         ],
         steps: [
-          "Laver et couper le potimarron (la peau se mange si bio) et les pommes de terre en gros cubes.",
-          "Couvrir d'eau et cuire 20 min jusqu'à tendreté.",
-          "Mixer très finement avec la crème liquide pour une émulsion soyeuse.",
-          "Dorer de petits dés de pain pour les grands."
+          "Couper potimarron et pommes de terre en morceaux et cuire 20 min dans l'eau.",
+          "Mixer très finement avec la crème liquide pour une texture onctueuse.",
+          "Faire dorer des dés de pain dans un peu de beurre pour les grands."
         ]
       },
       {
@@ -533,17 +535,17 @@
         timeBadge: "Ultra express (17 min)",
         costBadge: "Éco (€)",
         image: "https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=600&auto=format&fit=crop&q=80",
-        babyTip: "Les toutes petites pâtes lettres se mangent facilement à la cuillère sans risque d'étouffement. Succès garanti à 4 ans !",
+        babyTip: "Les toutes petites pâtes se mangent facilement sans risque d'étouffement. Un succès à 4 ans comme à 1 an.",
         ingredients: [
           { name: "Pâtes alphabet ou coquillettes", amount: 250, unit: "g", aisle: "Épicerie" },
           { name: "Coulis de tomate", amount: 300, unit: "ml", aisle: "Épicerie" },
-          { name: "Jambon blanc de qualité", amount: 3, unit: "tranches", aisle: "Boucherie & Poissonnerie" },
+          { name: "Jambon blanc de qualité", amount: 3, unit: "tranches", aisle: "Boucherie & Frais" },
           { name: "Huile d'olive", amount: 1, unit: "c.à.s", aisle: "Épicerie" }
         ],
         steps: [
-          "Cuire les petites pâtes dans un grand volume d'eau.",
+          "Cuire les pâtes jusqu'à ce qu'elles soient bien tendres.",
           "Chauffer le coulis de tomate avec une larme d'huile d'olive.",
-          "Égoutter les pâtes, mélanger à la sauce et ajouter le jambon coupé en petits confettis."
+          "Égoutter, napper de sauce et mélanger avec le jambon émincé en petits confettis."
         ]
       },
       {
@@ -555,7 +557,7 @@
         timeBadge: "Express (25 min)",
         costBadge: "Éco (€)",
         image: "https://images.unsplash.com/photo-1528207775981-d50bc57762c1?w=600&auto=format&fit=crop&q=80",
-        babyTip: "Forme ronde ultra moelleuse parfaite pour les deux enfants. Riche en vitamines et sans sucre ajouté.",
+        babyTip: "Forme ronde moelleuse idéale pour les doigts de bébé. Riche en vitamines et sans sucre ajouté.",
         ingredients: [
           { name: "Farine de blé", amount: 180, unit: "g", aisle: "Épicerie" },
           { name: "Purée de butternut ou potimarron", amount: 200, unit: "g", aisle: "Fruits & Légumes" },
@@ -564,9 +566,551 @@
           { name: "Avocat mûr", amount: 2, unit: "pièces", aisle: "Fruits & Légumes" }
         ],
         steps: [
-          "Mélanger la purée de courge, la farine, les œufs et le lait jusqu'à consistance de pâte épaisse.",
-          "Faire dorer de petits tas de pâte 2 minutes de chaque côté dans une poêle chaude huilée.",
-          "Servir tiède avec des lamelles d'avocat doux bien mûr."
+          "Mélanger la purée de courge, la farine, les œufs et le lait pour former une pâte homogène.",
+          "Cuire des petites galettes à la poêle 2 min par face.",
+          "Servir tiède avec des lamelles d'avocat tendre."
+        ]
+      },
+      {
+        id: "rec_17",
+        title: "Brandade douce de colin lieu & purée de panais",
+        category: "Poisson",
+        prepTime: "15 min",
+        cookTime: "20 min",
+        timeBadge: "Moyen (35 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Le goût naturellement sucré du panais séduit immédiatement bébé. La texture fondante du colin s'écrase sans effort.",
+        ingredients: [
+          { name: "Filet de colin ou lieu", amount: 350, unit: "g", aisle: "Boucherie & Frais" },
+          { name: "Panais", amount: 400, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Pommes de terre", amount: 300, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Lait entier", amount: 100, unit: "ml", aisle: "Crèmerie & Frais" },
+          { name: "Huile d'olive", amount: 2, unit: "c.à.s", aisle: "Épicerie" }
+        ],
+        steps: [
+          "Cuire le panais et les pommes de terre pelés dans l'eau 20 min.",
+          "Pocher le poisson 7 min dans un fond d'eau frémissante.",
+          "Écraser les légumes avec le lait et l'huile d'olive, puis incorporer le poisson effiloché."
+        ]
+      },
+      {
+        id: "rec_18",
+        title: "Gnocchis poêlés aux jeunes pousses d'épinards & coulis doux",
+        category: "Pâtes",
+        prepTime: "5 min",
+        cookTime: "12 min",
+        timeBadge: "Ultra express (17 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Privilégier une cuisson à l'eau ou vapeur pour des gnocchis bien mous sous les gencives plutôt que croustillants.",
+        ingredients: [
+          { name: "Gnocchis de pommes de terre", amount: 500, unit: "g", aisle: "Crèmerie & Frais" },
+          { name: "Coulis de tomate", amount: 300, unit: "ml", aisle: "Épicerie" },
+          { name: "Pousses d'épinards", amount: 150, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Mozzarella", amount: 125, unit: "g", aisle: "Crèmerie & Frais" }
+        ],
+        steps: [
+          "Cuire les gnocchis selon indications jusqu'à ce qu'ils remontent à la surface.",
+          "Faire tomber les épinards 2 min dans le coulis de tomate chaud.",
+          "Mélanger avec les gnocchis et parsemer de dés de mozzarella fondante."
+        ]
+      },
+      {
+        id: "rec_19",
+        title: "Papillote de dos de cabillaud aux courgettes & polenta crémeuse",
+        category: "Poisson",
+        prepTime: "10 min",
+        cookTime: "18 min",
+        timeBadge: "Express (28 min)",
+        costBadge: "Modéré (€€)",
+        image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80",
+        babyTip: "La polenta cuite au lait est très onctueuse et non salée. Le cabillaud en papillote conserve toute son humidité.",
+        ingredients: [
+          { name: "Dos de cabillaud", amount: 350, unit: "g", aisle: "Boucherie & Frais" },
+          { name: "Courgettes", amount: 300, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Polenta express", amount: 160, unit: "g", aisle: "Épicerie" },
+          { name: "Lait entier", amount: 400, unit: "ml", aisle: "Crèmerie & Frais" },
+          { name: "Huile d'olive", amount: 1, unit: "c.à.s", aisle: "Épicerie" }
+        ],
+        steps: [
+          "Enfourner le cabillaud et les courgettes en rondelles en papillote 15 min à 180°C.",
+          "Porter le lait et 200 ml d'eau à ébullition, verser la polenta en pluie et remuer 3 min.",
+          "Servir la polenta crémeuse avec le poisson effiloché."
+        ]
+      },
+      {
+        id: "rec_20",
+        title: "Hachis parmentier familial au boeuf & purée maison",
+        category: "Boeuf",
+        prepTime: "20 min",
+        cookTime: "25 min",
+        timeBadge: "Moyen (45 min)",
+        costBadge: "Modéré (€€)",
+        image: "https://images.unsplash.com/photo-1584947920409-7b3fce01a61c?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Plat réconfortant tout-en-un. Réduire la couche de viande en minuscules miettes mélangées à la purée.",
+        ingredients: [
+          { name: "Boeuf haché 5% MG", amount: 350, unit: "g", aisle: "Boucherie & Frais" },
+          { name: "Pommes de terre", amount: 700, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Carottes", amount: 200, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Lait entier", amount: 120, unit: "ml", aisle: "Crèmerie & Frais" },
+          { name: "Beurre doux", amount: 25, unit: "g", aisle: "Crèmerie & Frais" }
+        ],
+        steps: [
+          "Cuire les pommes de terre à l'eau et écraser avec le beurre et le lait.",
+          "Faire revenir le boeuf et les carottes râpées dans une poêle 8 min.",
+          "Disposer la viande dans un plat, recouvrir de purée et dorer 15 min au four."
+        ]
+      },
+      {
+        id: "rec_21",
+        title: "Chili con carne très doux aux haricots rouges & riz",
+        category: "Boeuf",
+        prepTime: "15 min",
+        cookTime: "20 min",
+        timeBadge: "Moyen (35 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Version sans aucun piment fort. Écraser les haricots rouges entre deux doigts pour le bébé de 1 an.",
+        ingredients: [
+          { name: "Boeuf haché 5% MG", amount: 300, unit: "g", aisle: "Boucherie & Frais" },
+          { name: "Haricots rouges en boîte", amount: 300, unit: "g", aisle: "Épicerie" },
+          { name: "Coulis de tomate", amount: 300, unit: "ml", aisle: "Épicerie" },
+          { name: "Maïs doux en boîte", amount: 140, unit: "g", aisle: "Épicerie" },
+          { name: "Riz blanc", amount: 200, unit: "g", aisle: "Épicerie" }
+        ],
+        steps: [
+          "Cuire le riz séparément.",
+          "Faire dorer le boeuf à la poêle puis ajouter le coulis, les haricots rincés et le maïs.",
+          "Laisser mijoter à feu doux 15 min. Saler après avoir prélevé la part de bébé."
+        ]
+      },
+      {
+        id: "rec_22",
+        title: "Croque-monsieur moelleux au four & velouté de carottes",
+        category: "Tradition",
+        prepTime: "10 min",
+        cookTime: "15 min",
+        timeBadge: "Express (25 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Pour bébé, proposer des mouillettes de croque tiède sans croûte dure et tremper dans la purée de carotte.",
+        ingredients: [
+          { name: "Pain de mie complet ou blanc", amount: 8, unit: "tranches", aisle: "Boulangerie" },
+          { name: "Jambon blanc de qualité", amount: 4, unit: "tranches", aisle: "Boucherie & Frais" },
+          { name: "Emmental râpé", amount: 100, unit: "g", aisle: "Crèmerie & Frais" },
+          { name: "Carottes", amount: 500, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Crème liquide", amount: 50, unit: "ml", aisle: "Crèmerie & Frais" }
+        ],
+        steps: [
+          "Cuire les carottes à l'eau et les mixer en velouté avec la crème.",
+          "Garnir le pain de mie avec jambon et emmental, puis enfourner 10 min jusqu'à ce que le fromage fonde.",
+          "Couper en lanières faciles à attraper."
+        ]
+      },
+      {
+        id: "rec_23",
+        title: "Wok doux de nouilles chinoises, dinde & julienne de légumes",
+        category: "Volaille",
+        prepTime: "15 min",
+        cookTime: "10 min",
+        timeBadge: "Express (25 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Couper les nouilles et légumes finement pour que l'enfant de 4 ans et le bébé puissent manger facilement à la cuillère.",
+        ingredients: [
+          { name: "Nouilles aux oeufs", amount: 250, unit: "g", aisle: "Épicerie" },
+          { name: "Escalope de dinde", amount: 350, unit: "g", aisle: "Boucherie & Frais" },
+          { name: "Carottes", amount: 200, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Courgettes", amount: 200, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Huile de tournesol", amount: 2, unit: "c.à.s", aisle: "Épicerie" }
+        ],
+        steps: [
+          "Cuire les nouilles selon les instructions.",
+          "Sauter les lamelles de dinde et les légumes taillés en fine julienne dans une poêle 8 min.",
+          "Mélanger les nouilles avec les légumes et la viande."
+        ]
+      },
+      {
+        id: "rec_24",
+        title: "Curry très doux de patate douce, lentilles & dés de poulet",
+        category: "Volaille",
+        prepTime: "15 min",
+        cookTime: "20 min",
+        timeBadge: "Moyen (35 min)",
+        costBadge: "Modéré (€€)",
+        image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Plat mijoté ultra fondant. Bien couper les morceaux de volaille en petits dés très souples.",
+        ingredients: [
+          { name: "Blancs de poulet", amount: 350, unit: "g", aisle: "Boucherie & Frais" },
+          { name: "Patate douce", amount: 400, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Lentilles corail", amount: 150, unit: "g", aisle: "Épicerie" },
+          { name: "Lait de coco", amount: 200, unit: "ml", aisle: "Épicerie" }
+        ],
+        steps: [
+          "Dorer les morceaux de poulet et les cubes de patate douce 5 minutes.",
+          "Ajouter les lentilles corail rincées et 300 ml d'eau.",
+          "Laisser mijoter 15 min, puis incorporer le lait de coco pour lier."
+        ]
+      },
+      {
+        id: "rec_25",
+        title: "Roulés moelleux de jambon blanc aux poireaux fondants & emmental",
+        category: "Tradition",
+        prepTime: "15 min",
+        cookTime: "20 min",
+        timeBadge: "Moyen (35 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Le poireau bien fondu est très tendre et le jambon s'effiloche sous la mastication de bébé.",
+        ingredients: [
+          { name: "Jambon blanc de qualité", amount: 4, unit: "tranches", aisle: "Boucherie & Frais" },
+          { name: "Blancs de poireaux", amount: 500, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Crème liquide", amount: 100, unit: "ml", aisle: "Crèmerie & Frais" },
+          { name: "Emmental râpé", amount: 60, unit: "g", aisle: "Crèmerie & Frais" },
+          { name: "Beurre doux", amount: 15, unit: "g", aisle: "Crèmerie & Frais" }
+        ],
+        steps: [
+          "Émincer les poireaux et les fondre 15 min dans le beurre jusqu'à texture très souple.",
+          "Rouler les poireaux dans les tranches de jambon, arroser de crème et parsemer d'emmental.",
+          "Gratiner 12 min à 180°C."
+        ]
+      },
+      {
+        id: "rec_26",
+        title: "Spaghettis aux dés de saumon & crème de courgettes",
+        category: "Poisson",
+        prepTime: "10 min",
+        cookTime: "15 min",
+        timeBadge: "Express (25 min)",
+        costBadge: "Modéré (€€)",
+        image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Mixer une partie de la courgette en velouté pour napper les pâtes, ce qui aide le bébé à avaler en douceur.",
+        ingredients: [
+          { name: "Spaghettis ou linguines", amount: 300, unit: "g", aisle: "Épicerie" },
+          { name: "Pavé de saumon frais", amount: 300, unit: "g", aisle: "Boucherie & Frais" },
+          { name: "Courgettes", amount: 400, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Crème liquide entière", amount: 120, unit: "ml", aisle: "Crèmerie & Frais" }
+        ],
+        steps: [
+          "Cuire les pâtes. Cuire les courgettes à la vapeur 10 min et en mixer la moitié avec la crème.",
+          "Dorer le saumon sans peau ni arêtes dans une poêle 5 min.",
+          "Mélanger pâtes, crème de courgette et morceaux de saumon."
+        ]
+      },
+      {
+        id: "rec_27",
+        title: "Galettes bretonnes complètes à l'oeuf & emmental",
+        category: "Tradition",
+        prepTime: "5 min",
+        cookTime: "10 min",
+        timeBadge: "Express (15 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1519676867240-f03562e64548?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Bien cuire l'œuf de bébé et couper la galette de sarrasin en rouleaux faciles à saisir avec la main.",
+        ingredients: [
+          { name: "Galettes de sarrasin", amount: 4, unit: "pièces", aisle: "Crèmerie & Frais" },
+          { name: "Œufs bio", amount: 4, unit: "pièces", aisle: "Crèmerie & Frais" },
+          { name: "Jambon blanc de qualité", amount: 4, unit: "tranches", aisle: "Boucherie & Frais" },
+          { name: "Emmental râpé", amount: 80, unit: "g", aisle: "Crèmerie & Frais" },
+          { name: "Beurre doux", amount: 20, unit: "g", aisle: "Crèmerie & Frais" }
+        ],
+        steps: [
+          "Beurrer une poêle à crêpe et tiédir la galette de sarrasin.",
+          "Poser le jambon, l'emmental et l'œuf.",
+          "Rabattre les 4 côtés et cuire à feu doux à couvert jusqu'à ce que l'œuf soit pris pour bébé."
+        ]
+      },
+      {
+        id: "rec_28",
+        title: "Tajine tout doux de poulet aux carottes fondantes & abricots",
+        category: "Volaille",
+        prepTime: "15 min",
+        cookTime: "25 min",
+        timeBadge: "Moyen (40 min)",
+        costBadge: "Modéré (€€)",
+        image: "https://images.unsplash.com/photo-1541518763669-27fef04b14ea?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Les abricots séchés infusent une douceur naturelle appréciée des tout-petits sans aucun ajout de sucre.",
+        ingredients: [
+          { name: "Cuisses ou blancs de poulet", amount: 400, unit: "g", aisle: "Boucherie & Frais" },
+          { name: "Carottes", amount: 500, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Abricots secs moelleux", amount: 60, unit: "g", aisle: "Épicerie" },
+          { name: "Semoule moyenne de blé", amount: 200, unit: "g", aisle: "Épicerie" },
+          { name: "Huile d'olive", amount: 2, unit: "c.à.s", aisle: "Épicerie" }
+        ],
+        steps: [
+          "Faire revenir le poulet et les carottes en bâtonnets dans l'huile.",
+          "Ajouter les abricots coupés en deux et couvrir d'eau.",
+          "Laisser mijoter à feu doux 25 min jusqu'à légumes fondants. Servir sur la semoule."
+        ]
+      },
+      {
+        id: "rec_29",
+        title: "Tofu poêlé au sésame, purée de brocolis & riz jasmin",
+        category: "Végétarien",
+        prepTime: "10 min",
+        cookTime: "15 min",
+        timeBadge: "Express (25 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Le tofu nature offre une consistance très tendre sous la mastication et regorge de protéines végétales.",
+        ingredients: [
+          { name: "Tofu ferme bio", amount: 350, unit: "g", aisle: "Crèmerie & Frais" },
+          { name: "Brocolis", amount: 500, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Riz blanc ou jasmin", amount: 200, unit: "g", aisle: "Épicerie" },
+          { name: "Huile de colza", amount: 2, unit: "c.à.s", aisle: "Épicerie" }
+        ],
+        steps: [
+          "Cuire les brocolis à la vapeur et les écraser avec une cuillère d'huile.",
+          "Couper le tofu en bâtonnets et les faire dorer légèrement à la poêle 6 min.",
+          "Servir les bâtonnets de tofu avec la purée verte et le riz."
+        ]
+      },
+      {
+        id: "rec_30",
+        title: "Quiche légère sans pâte au thon, maïs & courgettes",
+        category: "Poisson",
+        prepTime: "10 min",
+        cookTime: "25 min",
+        timeBadge: "Moyen (35 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1554998171-89445e31c52b?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Sans croûte sèche : la texture ressemble à un flan très moelleux facile à avaler dès 12 mois.",
+        ingredients: [
+          { name: "Thon au naturel en boîte", amount: 180, unit: "g", aisle: "Épicerie" },
+          { name: "Œufs bio", amount: 3, unit: "pièces", aisle: "Crèmerie & Frais" },
+          { name: "Farine de blé", amount: 70, unit: "g", aisle: "Épicerie" },
+          { name: "Lait entier", amount: 250, unit: "ml", aisle: "Crèmerie & Frais" },
+          { name: "Courgettes", amount: 300, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Maïs doux en boîte", amount: 140, unit: "g", aisle: "Épicerie" }
+        ],
+        steps: [
+          "Râper les courgettes finement.",
+          "Mélanger la farine, les œufs, le lait, puis ajouter le thon égoutté, le maïs et la courgette.",
+          "Verser dans un moule et cuire 25 min à 180°C."
+        ]
+      },
+      {
+        id: "rec_31",
+        title: "Poêlée de patates douces, haricots noirs & avocat tendre",
+        category: "Végétarien",
+        prepTime: "10 min",
+        cookTime: "15 min",
+        timeBadge: "Express (25 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Écraser les haricots noirs pour éliminer le format sphérique. L'avocat s'écrase sur les gencives sans danger.",
+        ingredients: [
+          { name: "Patate douce", amount: 500, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Haricots noirs cuits en conserve", amount: 250, unit: "g", aisle: "Épicerie" },
+          { name: "Avocat mûr", amount: 2, unit: "pièces", aisle: "Fruits & Légumes" },
+          { name: "Huile d'olive", amount: 2, unit: "c.à.s", aisle: "Épicerie" }
+        ],
+        steps: [
+          "Couper la patate douce en cubes fins et la sauter à couvert dans l'huile 15 min.",
+          "Ajouter les haricots rincés en fin de cuisson pour les réchauffer.",
+          "Servir tiède avec des lamelles d'avocat tendre."
+        ]
+      },
+      {
+        id: "rec_32",
+        title: "Risotto crémeux au potiron doux & dés de mozzarella",
+        category: "Végétarien",
+        prepTime: "10 min",
+        cookTime: "20 min",
+        timeBadge: "Express (30 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Le riz rond bien cuit et enrobé de purée de potiron forme des petites bouchées compactes faciles à porter à la bouche.",
+        ingredients: [
+          { name: "Riz pour risotto", amount: 250, unit: "g", aisle: "Épicerie" },
+          { name: "Potiron ou butternut", amount: 400, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Mozzarella", amount: 125, unit: "g", aisle: "Crèmerie & Frais" },
+          { name: "Beurre doux", amount: 20, unit: "g", aisle: "Crèmerie & Frais" }
+        ],
+        steps: [
+          "Faire cuire les dés de courge dans l'eau puis les mixer en coulis doux.",
+          "Nacrer le riz dans le beurre, puis cuire en ajoutant le coulis et de l'eau tiède 18 min.",
+          "Ajouter les dés de mozzarella juste avant de servir pour l'effet filant."
+        ]
+      },
+      {
+        id: "rec_33",
+        title: "Égrené de boeuf tendre, petits pois & purée de carottes",
+        category: "Boeuf",
+        prepTime: "10 min",
+        cookTime: "20 min",
+        timeBadge: "Rapide (30 min)",
+        costBadge: "Modéré (€€)",
+        image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Mélanger la viande hachée directement dans la purée de carotte pour une prise facile sans dispersion.",
+        ingredients: [
+          { name: "Boeuf haché 5% MG", amount: 350, unit: "g", aisle: "Boucherie & Frais" },
+          { name: "Carottes", amount: 600, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Petits pois surgelés", amount: 150, unit: "g", aisle: "Surgelés" },
+          { name: "Beurre doux", amount: 20, unit: "g", aisle: "Crèmerie & Frais" }
+        ],
+        steps: [
+          "Cuire les carottes à la vapeur 20 min et mixer en purée onctueuse avec le beurre.",
+          "Poêler le boeuf haché et les petits pois 6 à 8 minutes.",
+          "Servir la viande égrenée sur le lit de purée de carotte colorée."
+        ]
+      },
+      {
+        id: "rec_34",
+        title: "Penne crémeuses au saumon, ricotta & touche de citron",
+        category: "Poisson",
+        prepTime: "10 min",
+        cookTime: "15 min",
+        timeBadge: "Express (25 min)",
+        costBadge: "Modéré (€€)",
+        image: "https://images.unsplash.com/photo-1621996346565-e3d5d6281056?w=600&auto=format&fit=crop&q=80",
+        babyTip: "La ricotta forme un enrobage léger non gras, très adapté au système digestif des tout-petits.",
+        ingredients: [
+          { name: "Pennes", amount: 300, unit: "g", aisle: "Épicerie" },
+          { name: "Pavé de saumon frais", amount: 300, unit: "g", aisle: "Boucherie & Frais" },
+          { name: "Ricotta", amount: 150, unit: "g", aisle: "Crèmerie & Frais" },
+          { name: "Citron jaune", amount: 1, unit: "pièce", aisle: "Fruits & Légumes" }
+        ],
+        steps: [
+          "Cuire les pâtes jusqu'à tendreté.",
+          "Cuire le saumon à la poêle 6 min sans coloration excessive, puis l'émietter.",
+          "Mélanger les pennes avec la ricotta, un filet d'eau de cuisson des pâtes et le saumon."
+        ]
+      },
+      {
+        id: "rec_35",
+        title: "Soupe repas de vermicelles aux petits légumes doux & poulet",
+        category: "Volaille",
+        prepTime: "10 min",
+        cookTime: "15 min",
+        timeBadge: "Express (25 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Les vermicelles ou cheveux d'ange cuits dans le bouillon de légumes s'avalent comme une crème.",
+        ingredients: [
+          { name: "Vermicelles de blé", amount: 150, unit: "g", aisle: "Épicerie" },
+          { name: "Blancs de poulet", amount: 300, unit: "g", aisle: "Boucherie & Frais" },
+          { name: "Carottes", amount: 300, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Courgettes", amount: 200, unit: "g", aisle: "Fruits & Légumes" }
+        ],
+        steps: [
+          "Tailler les carottes et courgettes en tous petits dés et les cuire dans 1 litre d'eau 12 min.",
+          "Ajouter le poulet coupé fin et les vermicelles.",
+          "Poursuivre la cuisson 3 min jusqu'à ce que tout soit très tendre."
+        ]
+      },
+      {
+        id: "rec_36",
+        title: "Gratin doré de chou-fleur à la béchamel douce & muscade",
+        category: "Végétarien",
+        prepTime: "15 min",
+        cookTime: "25 min",
+        timeBadge: "Moyen (40 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Le chou-fleur très cuit est ultra tendre. Bébé adore mâchouiller les petits morceaux imbibés de sauce béchamel.",
+        ingredients: [
+          { name: "Chou-fleur", amount: 800, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Lait entier", amount: 400, unit: "ml", aisle: "Crèmerie & Frais" },
+          { name: "Farine de blé", amount: 30, unit: "g", aisle: "Épicerie" },
+          { name: "Beurre doux", amount: 30, unit: "g", aisle: "Crèmerie & Frais" },
+          { name: "Emmental râpé", amount: 70, unit: "g", aisle: "Crèmerie & Frais" }
+        ],
+        steps: [
+          "Cuire les fleurettes de chou-fleur dans l'eau bouillante 15 min.",
+          "Préparer une béchamel douce avec beurre, farine et lait.",
+          "Napper le chou-fleur dans un plat, parsemer d'emmental et dorer 12 min au four."
+        ]
+      },
+      {
+        id: "rec_37",
+        title: "Filet de lieu noir poché au lait, purée de carottes & riz",
+        category: "Poisson",
+        prepTime: "10 min",
+        cookTime: "15 min",
+        timeBadge: "Express (25 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Le pochage au lait rend la chair du poisson blanc exceptionnellement moelleuse et enlève toute amertume.",
+        ingredients: [
+          { name: "Filet de colin ou lieu", amount: 350, unit: "g", aisle: "Boucherie & Frais" },
+          { name: "Carottes", amount: 500, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Riz blanc", amount: 200, unit: "g", aisle: "Épicerie" },
+          { name: "Lait entier", amount: 150, unit: "ml", aisle: "Crèmerie & Frais" },
+          { name: "Beurre doux", amount: 15, unit: "g", aisle: "Crèmerie & Frais" }
+        ],
+        steps: [
+          "Cuire les carottes et le riz.",
+          "Pocher le lieu dans une casserole avec le lait frémissant 6 minutes.",
+          "Écraser les carottes avec une noisette de beurre et émietter le poisson dessus."
+        ]
+      },
+      {
+        id: "rec_38",
+        title: "Tacos familiaux doux : dinde émincée, avocat & maïs",
+        category: "Volaille",
+        prepTime: "15 min",
+        cookTime: "10 min",
+        timeBadge: "Express (25 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Plutôt que la galette pliée, servir les éléments décomposés dans l'assiette de bébé pour qu'il pioche à sa guise.",
+        ingredients: [
+          { name: "Tortillas de blé souples", amount: 4, unit: "pièces", aisle: "Épicerie" },
+          { name: "Escalope de dinde", amount: 350, unit: "g", aisle: "Boucherie & Frais" },
+          { name: "Avocat mûr", amount: 2, unit: "pièces", aisle: "Fruits & Légumes" },
+          { name: "Maïs doux en boîte", amount: 140, unit: "g", aisle: "Épicerie" },
+          { name: "Coulis de tomate", amount: 150, unit: "ml", aisle: "Épicerie" }
+        ],
+        steps: [
+          "Émincer la dinde et la poêler 6 min avec un filet de coulis de tomate.",
+          "Écraser l'avocat avec une fourchette.",
+          "Garnir les tortillas souples pour les grands et servir séparé pour bébé."
+        ]
+      },
+      {
+        id: "rec_39",
+        title: "Pâtes coquilles crémeuses aux courgettes & jambon doux",
+        category: "Pâtes",
+        prepTime: "5 min",
+        cookTime: "12 min",
+        timeBadge: "Ultra express (17 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Les coquillettes et la courgette râpée fondent dans la crème, évitant tout risque de fausse route.",
+        ingredients: [
+          { name: "Coquillettes", amount: 300, unit: "g", aisle: "Épicerie" },
+          { name: "Courgettes", amount: 300, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Jambon blanc de qualité", amount: 3, unit: "tranches", aisle: "Boucherie & Frais" },
+          { name: "Crème liquide", amount: 100, unit: "ml", aisle: "Crèmerie & Frais" }
+        ],
+        steps: [
+          "Cuire les coquillettes.",
+          "Râper la courgette et la faire revenir 4 min dans une poêle avec un filet d'huile.",
+          "Ajouter la crème, le jambon en dés et mélanger le tout avec les coquillettes égouttées."
+        ]
+      },
+      {
+        id: "rec_40",
+        title: "Soupe réconfortante de lentilles corail, potiron & lait de coco",
+        category: "Soupe repas",
+        prepTime: "10 min",
+        cookTime: "20 min",
+        timeBadge: "Rapide (30 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Velouté onctueux riche en fer végétal. Idéal à donner tiède à la petite cuillère pour un dîner léger.",
+        ingredients: [
+          { name: "Lentilles corail", amount: 200, unit: "g", aisle: "Épicerie" },
+          { name: "Potiron ou butternut", amount: 500, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Lait de coco", amount: 200, unit: "ml", aisle: "Épicerie" },
+          { name: "Huile d'olive", amount: 1, unit: "c.à.s", aisle: "Épicerie" }
+        ],
+        steps: [
+          "Cuire les dés de potiron et les lentilles rincées dans 600 ml d'eau 18 min.",
+          "Ajouter le lait de coco et mixer finement jusqu'à texture veloutée.",
+          "Servir tiède à toute la famille."
         ]
       }
     ];
@@ -574,8 +1118,11 @@
     let state = {
       selectedRecipeIds: [],
       checkedGroceryItems: {},
-      activeTab: 'menu'
+      activeTab: 'menu',
+      searchQuery: ''
     };
+
+    const DAYS_NAMES = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
 
     function saveState() {
       try {
@@ -593,14 +1140,13 @@
         const saved = localStorage.getItem('ptitsplats_state');
         if (saved) {
           const parsed = JSON.parse(saved);
-          state.selectedRecipeIds = parsed.selectedRecipeIds || [];
+          state.selectedRecipeIds = (parsed.selectedRecipeIds || []).filter(id => RECIPE_DATABASE.some(r => r.id === id));
           state.checkedGroceryItems = parsed.checkedGroceryItems || {};
         }
       } catch (e) {
         console.warn("Could not load stored state", e);
       }
 
-      // Si aucune semaine active, générer 7 recettes aléatoires
       if (!state.selectedRecipeIds || state.selectedRecipeIds.length !== 7) {
         renewFullWeek(false);
       }
@@ -616,10 +1162,9 @@
       if (confirmUser && !window.confirm("Voulez-vous générer 7 nouvelles recettes pour la semaine ? La liste de courses sera mise à jour.")) {
         return;
       }
-      
-      const newSeven = getRandomRecipes(7, []);
-      state.selectedRecipeIds = newSeven.map(r => r.id);
-      state.checkedGroceryItems = {}; // remise à zéro des courses pour le nouveau menu
+
+      state.selectedRecipeIds = getRandomRecipes(7, []).map(r => r.id);
+      state.checkedGroceryItems = {};
       saveState();
       renderAll();
     }
@@ -631,17 +1176,15 @@
     function replaceSingleRecipe(recipeId, event) {
       if (event) event.stopPropagation();
 
-      // Trouver une recette de remplacement qui n'est pas encore dans les 7 actuelles
       const replacements = getRandomRecipes(1, state.selectedRecipeIds);
       if (replacements.length === 0) {
         alert("Toutes les recettes disponibles sont déjà sélectionnées !");
         return;
       }
 
-      const newRecipe = replacements[0];
       const index = state.selectedRecipeIds.indexOf(recipeId);
       if (index !== -1) {
-        state.selectedRecipeIds[index] = newRecipe.id;
+        state.selectedRecipeIds[index] = replacements[0].id;
         saveState();
         renderAll();
       }
@@ -656,7 +1199,6 @@
 
       selectedRecipes.forEach(recipe => {
         recipe.ingredients.forEach(ing => {
-          // Clé unique par nom et unité pour additionner proprement
           const key = `${ing.name.toLowerCase().trim()}_${ing.unit.toLowerCase().trim()}`;
           if (!itemsMap[key]) {
             itemsMap[key] = {
@@ -671,11 +1213,11 @@
         });
       });
 
-      // Regroupement par rayon
       const aislesOrder = [
         "Fruits & Légumes",
-        "Boucherie & Poissonnerie",
+        "Boucherie & Frais",
         "Crèmerie & Frais",
+        "Boulangerie",
         "Épicerie",
         "Surgelés"
       ];
@@ -690,7 +1232,6 @@
         aisles[item.aisle].push(item);
       });
 
-      // Trier les ingrédients par nom alphabétique dans chaque rayon
       Object.keys(aisles).forEach(aisleName => {
         aisles[aisleName].sort((a, b) => a.name.localeCompare(b.name));
       });
@@ -710,10 +1251,172 @@
       renderGroceryView();
     }
 
-    const DAYS_NAMES = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+    function handleSearch(query) {
+      state.searchQuery = (query || '').trim().toLowerCase();
+      const clearBtn = document.getElementById('btn-clear-search');
+      if (clearBtn) {
+        if (state.searchQuery) {
+          clearBtn.classList.remove('hidden');
+        } else {
+          clearBtn.classList.add('hidden');
+        }
+      }
+      renderMenuView();
+    }
+
+    function clearSearch() {
+      const input = document.getElementById('recipe-search-input');
+      if (input) input.value = '';
+      handleSearch('');
+    }
+
+    function normalizeText(text) {
+      return (text || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function isRecipeInCurrentMenu(recipeId) {
+      return state.selectedRecipeIds.includes(recipeId);
+    }
+
+    function addOrReplaceInMenu(recipeId, event) {
+      if (event) event.stopPropagation();
+
+      if (isRecipeInCurrentMenu(recipeId)) {
+        return;
+      }
+
+      // Si le menu a déjà 7 recettes, on propose à l'utilisateur de remplacer une recette au choix
+      if (state.selectedRecipeIds.length >= 7) {
+        const optionsList = state.selectedRecipeIds.map((id, index) => {
+          const r = RECIPE_DATABASE.find(item => item.id === id);
+          return `${index + 1}. ${DAYS_NAMES[index]} : ${r ? r.title : 'Repas'}`;
+        }).join('\n');
+
+        const choice = prompt(
+          "Votre menu comporte déjà 7 repas.\nIndiquez le numéro (1 à 7) du jour à remplacer par cette recette :\n\n" + optionsList,
+          "1"
+        );
+
+        if (!choice) return;
+        const index = parseInt(choice, 10) - 1;
+        if (isNaN(index) || index < 0 || index >= 7) {
+          return;
+        }
+
+        state.selectedRecipeIds[index] = recipeId;
+      } else {
+        state.selectedRecipeIds.push(recipeId);
+      }
+
+      saveState();
+      renderAll();
+    }
 
     function renderMenuView() {
       const container = document.getElementById('recipes-list');
+      const sectionTitle = document.getElementById('section-title');
+      const sectionSubtitle = document.getElementById('section-subtitle');
+      const badge = document.getElementById('recipe-count-badge');
+      const searchNormalized = normalizeText(state.searchQuery);
+
+      // Mode recherche actif
+      if (searchNormalized.length > 0) {
+        const matches = RECIPE_DATABASE.filter(r => {
+          const matchTitle = normalizeText(r.title).includes(searchNormalized);
+          const matchCategory = normalizeText(r.category).includes(searchNormalized);
+          const matchIngredient = r.ingredients.some(ing => normalizeText(ing.name).includes(searchNormalized));
+          return matchTitle || matchCategory || matchIngredient;
+        });
+
+        sectionTitle.innerText = "Résultats de recherche";
+        sectionSubtitle.innerText = `Recherche pour "${state.searchQuery}"`;
+        badge.className = "px-2.5 py-1 text-xs font-semibold rounded-full bg-brand-100 text-brand-800";
+        badge.innerText = `${matches.length} trouvé${matches.length > 1 ? 's' : ''}`;
+
+        if (matches.length === 0) {
+          container.innerHTML = `
+            <div class="bg-white rounded-2xl p-8 border border-slate-200/80 text-center space-y-3">
+              <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto text-xl">🔍</div>
+              <h3 class="text-sm font-bold text-slate-800">Aucune recette trouvée</h3>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                Essayez un autre mot-clé comme <em>saumon</em>, <em>courgette</em>, <em>pâtes</em>, <em>patate douce</em> ou <em>poulet</em>.
+              </p>
+              <button onclick="clearSearch()" class="mt-2 text-xs font-bold text-brand-600 hover:text-brand-700 bg-brand-50 px-3.5 py-2 rounded-xl border border-brand-200">
+                Réinitialiser la recherche
+              </button>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = matches.map(recipe => {
+          const inMenu = isRecipeInCurrentMenu(recipe.id);
+          const currentDayIndex = state.selectedRecipeIds.indexOf(recipe.id);
+          const dayBadge = inMenu ? `Dans le menu (${DAYS_NAMES[currentDayIndex]})` : null;
+
+          return `
+            <article class="bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs transition hover:shadow-md active:bg-slate-50 cursor-pointer" onclick="openRecipeModal('${recipe.id}')">
+              <div class="relative h-44 w-full bg-slate-100 overflow-hidden">
+                <img src="${recipe.image}" alt="${recipe.title}" class="w-full h-full object-cover transition duration-300 hover:scale-105" loading="lazy">
+                
+                ${dayBadge ? `
+                  <div class="absolute top-2.5 left-2.5 bg-emerald-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-xl shadow-xs flex items-center gap-1">
+                    <span>✓</span> <span>${dayBadge}</span>
+                  </div>
+                ` : `
+                  <div class="absolute top-2.5 left-2.5 bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-1 rounded-xl shadow-xs">
+                    ${recipe.category}
+                  </div>
+                `}
+
+                <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5">
+                  ${!inMenu ? `
+                    <button onclick="addOrReplaceInMenu('${recipe.id}', event)" title="Insérer dans mon menu de la semaine" class="bg-brand-600 hover:bg-brand-700 text-white px-2.5 py-1.5 rounded-xl shadow-sm transition active:scale-90 flex items-center gap-1 text-[11px] font-bold">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                      <span>Mettre au menu</span>
+                    </button>
+                  ` : `
+                    <span class="bg-white/95 text-emerald-700 px-2.5 py-1 rounded-xl shadow-xs text-[11px] font-bold">Au menu</span>
+                  `}
+                </div>
+              </div>
+              <div class="p-3.5 space-y-2">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-teal-50 text-teal-700 border border-teal-200/60">
+                    ⏱️ ${recipe.timeBadge}
+                  </span>
+                  <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200/60">
+                    💰 ${recipe.costBadge}
+                  </span>
+                  <span class="text-[11px] font-semibold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600">
+                    ${recipe.category}
+                  </span>
+                </div>
+                <h3 class="font-bold text-slate-900 text-sm sm:text-base leading-snug line-clamp-1">
+                  ${recipe.title}
+                </h3>
+                <div class="bg-amber-50/70 border border-amber-200/60 rounded-xl p-2 flex items-start gap-2">
+                  <span class="text-sm">👶</span>
+                  <p class="text-[11px] text-amber-900 line-clamp-2 leading-relaxed">
+                    <strong>Bébé 1 an :</strong> ${recipe.babyTip}
+                  </p>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join('');
+        return;
+      }
+
+      // Mode normal : les 7 jours de la semaine
+      sectionTitle.innerText = "Menu des 7 jours";
+      sectionSubtitle.innerText = "Repas sains, rapides et adaptés à bébé";
+      badge.className = "px-2.5 py-1 text-xs font-semibold rounded-full bg-teal-100 text-teal-800";
+      badge.innerText = `7 sur ${RECIPE_DATABASE.length} dispo`;
+
       const selectedRecipes = state.selectedRecipeIds
         .map(id => RECIPE_DATABASE.find(r => r.id === id))
         .filter(Boolean);
@@ -727,9 +1430,9 @@
               <div class="absolute top-2.5 left-2.5 bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-1 rounded-xl shadow-xs">
                 ${dayLabel}
               </div>
-              <button onclick="replaceSingleRecipe('${recipe.id}', event)" title="Changer cette recette" class="absolute top-2.5 right-2.5 bg-white/90 hover:bg-white text-slate-700 p-2 rounded-xl backdrop-blur-md shadow-sm transition active:scale-90 flex items-center gap-1 text-xs font-semibold">
+              <button onclick="replaceSingleRecipe('${recipe.id}', event)" title="Changer cette recette" class="absolute top-2.5 right-2.5 bg-white/95 hover:bg-white text-slate-700 p-2 rounded-xl backdrop-blur-md shadow-sm transition active:scale-90 flex items-center gap-1 text-xs font-semibold">
                 <svg class="w-3.5 h-3.5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                <span class="text-[11px]">Remplacer</span>
+                <span class="text-[11px]">Changer</span>
               </button>
             </div>
             <div class="p-3.5 space-y-2">
@@ -768,13 +1471,11 @@
         if (val) checkedCount++;
       });
 
-      // Update counters & progress bar
       document.getElementById('badge-grocery-count').innerText = Math.max(0, totalCount - checkedCount);
       document.getElementById('grocery-progress-text').innerText = `${checkedCount} sur ${totalCount} articles achetés`;
       const pct = totalCount > 0 ? Math.round((checkedCount / totalCount) * 100) : 0;
       document.getElementById('grocery-progress-bar').style.width = `${pct}%`;
 
-      // Rendu des rayons
       let html = "";
       Object.keys(aisles).forEach(aisleName => {
         const items = aisles[aisleName];
@@ -848,13 +1549,11 @@
       document.getElementById('modal-title').innerText = recipe.title;
       document.getElementById('modal-baby-tip').innerText = recipe.babyTip;
 
-      // Badges
       document.getElementById('modal-badges').innerHTML = `
         <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-teal-50 text-teal-700 border border-teal-200">⏱️ Prépa: ${recipe.prepTime} • Cuisson: ${recipe.cookTime}</span>
         <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-50 text-amber-700 border border-amber-200">💰 ${recipe.costBadge}</span>
       `;
 
-      // Ingrédients
       document.getElementById('modal-ingredients').innerHTML = recipe.ingredients.map(ing => `
         <li class="py-1.5 flex justify-between items-center">
           <span>${ing.name}</span>
@@ -862,20 +1561,17 @@
         </li>
       `).join('');
 
-      // Étapes
       document.getElementById('modal-steps').innerHTML = recipe.steps.map(step => `
         <li class="pl-1">${step}</li>
       `).join('');
 
-      const modal = document.getElementById('recipe-modal');
-      modal.classList.remove('hidden');
+      document.getElementById('recipe-modal').classList.remove('hidden');
     }
 
     function closeRecipeModal() {
       document.getElementById('recipe-modal').classList.add('hidden');
     }
 
-    // Fermer le modal au clic en dehors du contenu
     document.getElementById('recipe-modal').addEventListener('click', function(e) {
       if (e.target === this) closeRecipeModal();
     });
@@ -887,7 +1583,6 @@
       });
     }
 
-    // Initialisation au chargement
     window.addEventListener('DOMContentLoaded', () => {
       loadState();
       renderAll();
