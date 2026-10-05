@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#0d9488">
+  <title>P'tits Plats & Courses - Menu Hebdo Famille</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              200: '#99f6e4',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Safe-area insets pour encoches mobiles */
+    body {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    input, button, p, span, h1, h2, h3, h4 {
+      user-select: text;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    .custom-scroll {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* Checkbox custom pulse */
+    .checkbox-done:checked + label span.item-text {
+      text-decoration: line-through;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased select-none pb-24">
+
+  <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 py-3 shadow-xs">
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-teal-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20 text-lg">
+          🥑
+        </div>
+        <div>
+          <h1 class="text-base font-extrabold tracking-tight text-slate-900 leading-tight">P'tits Plats</h1>
+          <p class="text-xs text-slate-500 font-medium flex items-center gap-1">
+            <span>2 adultes</span> • <span>4 ans</span> • <span class="text-teal-600 font-semibold">1 an (DME)</span>
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button id="btn-renew-all" onclick="handleRenewWeek()" class="flex items-center gap-1.5 px-3 py-2 bg-brand-50 hover:bg-brand-100 text-brand-700 text-xs font-bold rounded-xl transition active:scale-95 border border-brand-200">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          <span>Nouveau menu</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-md w-full mx-auto p-4 space-y-4">
+    <!-- Onglet 1 : Menu de la semaine -->
+    <section id="tab-content-menu" class="space-y-4">
+      <div class="flex items-center justify-between px-1">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Menu des 7 jours</h2>
+          <p class="text-xs text-slate-500">Repas sains, rapides et adaptés à bébé</p>
+        </div>
+        <span id="recipe-count-badge" class="px-2.5 py-1 text-xs font-semibold rounded-full bg-slate-200 text-slate-700">
+          7 repas
+        </span>
+      </div>
+
+      <!-- Liste des 7 cartes de repas -->
+      <div id="recipes-list" class="space-y-4">
+        <!-- Rempli dynamiquement en JS -->
+      </div>
+    </section>
+
+    <!-- Onglet 2 : Liste de courses -->
+    <section id="tab-content-grocery" class="hidden space-y-4">
+      <div class="flex items-center justify-between px-1">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Courses de la semaine</h2>
+          <p class="text-xs text-slate-500">Ingrédients cumulés pour vos 7 repas</p>
+        </div>
+        <button onclick="clearCheckedItems()" class="text-xs font-medium text-slate-500 hover:text-rose-600 transition px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white active:bg-slate-50">
+          Décocher tout
+        </button>
+      </div>
+
+      <!-- Progression des courses -->
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+        <div class="flex flex-col">
+          <span class="text-xs text-slate-500 font-medium">Progression du caddie</span>
+          <span id="grocery-progress-text" class="text-sm font-bold text-slate-800">0 sur 0 articles</span>
+        </div>
+        <div class="w-32 bg-slate-100 rounded-full h-2.5 overflow-hidden">
+          <div id="grocery-progress-bar" class="bg-brand-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Rayons de supermarché -->
+      <div id="grocery-aisles-list" class="space-y-4">
+        <!-- Rempli dynamiquement en JS -->
+      </div>
+    </section>
+  </main>
+
+  <div id="recipe-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-opacity">
+    <div id="modal-card" class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[88vh] flex flex-col overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-200">
+      <div class="relative h-48 w-full bg-slate-100 shrink-0">
+        <img id="modal-img" src="" alt="Recette" class="w-full h-full object-cover">
+        <button onclick="closeRecipeModal()" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center backdrop-blur-md transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div class="p-5 overflow-y-auto space-y-4 custom-scroll">
+        <div class="flex flex-wrap gap-2" id="modal-badges"></div>
+        <h3 id="modal-title" class="text-xl font-bold text-slate-900"></h3>
+        
+        <!-- Focus Bébé 1 an -->
+        <div class="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-200/70 text-amber-900 space-y-1">
+          <div class="flex items-center gap-1.5 text-xs font-bold text-amber-800 uppercase tracking-wide">
+            <span>👶</span> Adaptation Bébé (1 an)
+          </div>
+          <p id="modal-baby-tip" class="text-xs text-amber-900 leading-relaxed"></p>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-bold text-slate-900 mb-2">Ingrédients (4 pers. / 2 adultes + 2 enfants)</h4>
+          <ul id="modal-ingredients" class="divide-y divide-slate-100 text-sm text-slate-700 bg-slate-50/80 rounded-2xl p-3 border border-slate-100"></ul>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-bold text-slate-900 mb-2">Préparation pas à pas</h4>
+          <ol id="modal-steps" class="space-y-2 text-xs sm:text-sm text-slate-600 list-decimal list-inside leading-relaxed"></ol>
+        </div>
+      </div>
+      <div class="p-4 border-t border-slate-100 bg-slate-50/70">
+        <button onclick="closeRecipeModal()" class="w-full py-3 bg-brand-600 hover:bg-brand-700 active:scale-98 text-white font-bold rounded-2xl transition shadow-md shadow-brand-600/20">
+          C'est noté !
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200 z-40 py-2">
+    <div class="max-w-md mx-auto flex items-center justify-around px-4">
+      <button id="nav-btn-menu" onclick="switchTab('menu')" class="flex flex-col items-center gap-1 text-brand-600 font-semibold text-xs py-1 px-4 transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+        </svg>
+        <span>Menu 7 jours</span>
+      </button>
+
+      <button id="nav-btn-grocery" onclick="switchTab('grocery')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 font-semibold text-xs py-1 px-4 transition relative">
+        <div class="relative">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+          </svg>
+          <span id="badge-grocery-count" class="absolute -top-1 -right-2 bg-brand-600 text-white font-bold rounded-full w-4 h-4 flex items-center justify-center text-[10px]">0</span>
+        </div>
+        <span>Courses</span>
+      </button>
+    </div>
+  </nav>
+
+  <script>
+    // Base de recettes adaptées famille (2 adultes + 4 ans + 1 an)
+    const RECIPE_DATABASE = [
+      {
+        id: "rec_1",
+        title: "Dahl crémeux de lentilles corail & patate douce",
+        category: "Végétarien",
+        prepTime: "15 min",
+        cookTime: "20 min",
+        timeBadge: "Rapide (35 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Prélever la part de bébé avant de saler ou d'épicer. Écraser grossièrement à la fourchette pour obtenir une purée texturée très fondante.",
+        ingredients: [
+          { name: "Lentilles corail", amount: 250, unit: "g", aisle: "Épicerie" },
+          { name: "Patate douce", amount: 450, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Lait de coco", amount: 250, unit: "ml", aisle: "Épicerie" },
+          { name: "Coulis de tomate", amount: 200, unit: "ml", aisle: "Épicerie" },
+          { name: "Huile d'olive", amount: 2, unit: "c.à.s", aisle: "Épicerie" }
+        ],
+        steps: [
+          "Éplucher et tailler la patate douce en petits dés.",
+          "Dans une sauteuse, faire revenir les dés dans l'huile d'olive 3 minutes.",
+          "Rincer les lentilles corail et les ajouter avec le coulis de tomate et 350 ml d'eau.",
+          "Laisser mijoter 15 min à feu doux. Incorporer le lait de coco en fin de cuisson.",
+          "Prélever la portion pour bébé de 1 an, puis saler et poivrer le reste pour la famille."
+        ]
+      },
+      {
+        id: "rec_2",
+        title: "Gratin de coquillettes, courgettes & dés de dinde",
+        category: "Volaille",
+        prepTime: "15 min",
+        cookTime: "20 min",
+        timeBadge: "Moyen (35 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Couper les morceaux de dinde très finement et privilégier des coquillettes très tendres faciles à mâcher avec les gencives.",
+        ingredients: [
+          { name: "Coquillettes", amount: 300, unit: "g", aisle: "Épicerie" },
+          { name: "Courgettes", amount: 450, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Escalope de dinde", amount: 350, unit: "g", aisle: "Boucherie & Poissonnerie" },
+          { name: "Crème liquide entière", amount: 150, unit: "ml", aisle: "Crèmerie & Frais" },
+          { name: "Emmental râpé", amount: 80, unit: "g", aisle: "Crèmerie & Frais" }
+        ],
+        steps: [
+          "Faire cuire les coquillettes al dente (légèrement plus cuites pour les petits).",
+          "Couper les courgettes en dés fins et la dinde en lamelles. Les faire revenir à la poêle 8 min.",
+          "Mélanger pâtes, légumes, dinde et crème dans un plat à gratin.",
+          "Saupoudrer d'emmental râpé et dorer au four 15 min à 190°C."
+        ]
+      },
+      {
+        id: "rec_3",
+        title: "Omelette moelleuse aux épinards frais & ricotta",
+        category: "Œufs",
+        prepTime: "10 min",
+        cookTime: "10 min",
+        timeBadge: "Express (20 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1510693206972-df098062cb71?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Cuire l'omelette bien à cœur (l'œuf cru est déconseillé aux bébés) puis tailler en lanières de l'épaisseur d'un doigt (finger food autonome).",
+        ingredients: [
+          { name: "Œufs bio", amount: 6, unit: "pièces", aisle: "Crèmerie & Frais" },
+          { name: "Épinards frais", amount: 300, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Ricotta", amount: 150, unit: "g", aisle: "Crèmerie & Frais" },
+          { name: "Beurre doux", amount: 20, unit: "g", aisle: "Crèmerie & Frais" }
+        ],
+        steps: [
+          "Faire tomber les épinards lavés 3 minutes dans une poêle avec une noisette de beurre.",
+          "Battre les œufs dans un saladier avec la ricotta.",
+          "Verser l'appareil dans la poêle et cuire à feu doux jusqu'à ce que le centre soit bien pris.",
+          "Couper en bâtonnets pour les enfants."
+        ]
+      },
+      {
+        id: "rec_4",
+        title: "Pavé de saumon vapeur, riz basmati & brocolis tendres",
+        category: "Poisson",
+        prepTime: "10 min",
+        cookTime: "15 min",
+        timeBadge: "Rapide (25 min)",
+        costBadge: "Modéré (€€)",
+        image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Vérifier soigneusement l'absence absolue d'arêtes. Servir un fleuron de brocoli bien fondant que le bébé peut attraper à pleine main.",
+        ingredients: [
+          { name: "Pavé de saumon frais", amount: 350, unit: "g", aisle: "Boucherie & Poissonnerie" },
+          { name: "Brocolis", amount: 500, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Riz basmati", amount: 220, unit: "g", aisle: "Épicerie" },
+          { name: "Citron jaune", amount: 1, unit: "pièce", aisle: "Fruits & Légumes" }
+        ],
+        steps: [
+          "Cuire le riz basmati dans de l'eau bouillante non salée.",
+          "Cuire à la vapeur les fleurettes de brocolis et les morceaux de saumon pendant 12 minutes.",
+          "Assaisonner d'un filet de citron et d'huile d'olive au moment de servir."
+        ]
+      },
+      {
+        id: "rec_5",
+        title: "Poêlée campagnarde : pommes de terre, carottes & jambon blanc",
+        category: "Tradition",
+        prepTime: "15 min",
+        cookTime: "20 min",
+        timeBadge: "Moyen (35 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Les carottes doivent être bien fondantes sous les doigts. Utiliser du jambon blanc découenné et dégraissé sans nitrites coupé en dés.",
+        ingredients: [
+          { name: "Pommes de terre", amount: 600, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Carottes", amount: 400, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Jambon blanc de qualité", amount: 4, unit: "tranches", aisle: "Boucherie & Poissonnerie" },
+          { name: "Beurre doux", amount: 25, unit: "g", aisle: "Crèmerie & Frais" }
+        ],
+        steps: [
+          "Éplucher les légumes et les tailler en petits cubes réguliers.",
+          "Faire cuire les cubes à la vapeur ou à l'étouffée avec un fond d'eau et le beurre pendant 18 min.",
+          "Ajouter le jambon coupé en petits carrés 2 minutes avant la fin."
+        ]
+      },
+      {
+        id: "rec_6",
+        title: "Pennes aux lentilles vertes, sauce mijotée carottes-tomates",
+        category: "Végétarien",
+        prepTime: "10 min",
+        cookTime: "20 min",
+        timeBadge: "Express (30 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1621996346565-e3d5d6281056?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Les sauces riches en carottes et tomates douces sont idéales dès 12 mois. Mélanger avec de grosses pennes faciles à manipuler.",
+        ingredients: [
+          { name: "Pennes", amount: 300, unit: "g", aisle: "Épicerie" },
+          { name: "Lentilles vertes cuites", amount: 250, unit: "g", aisle: "Épicerie" },
+          { name: "Coulis de tomate", amount: 350, unit: "ml", aisle: "Épicerie" },
+          { name: "Carottes", amount: 200, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Parmesan râpé", amount: 40, unit: "g", aisle: "Crèmerie & Frais" }
+        ],
+        steps: [
+          "Faire revenir les carottes râpées dans une casserole avec une cuillère d'huile.",
+          "Ajouter le coulis de tomate et les lentilles cuites égouttées. Laisser mijoter 12 min.",
+          "Faire cuire les pennes et napper de cette sauce bolognaise végétale très douce."
+        ]
+      },
+      {
+        id: "rec_7",
+        title: "Boulettes maison de boeuf tendre & purée de potimarron",
+        category: "Boeuf",
+        prepTime: "15 min",
+        cookTime: "20 min",
+        timeBadge: "Moyen (35 min)",
+        costBadge: "Modéré (€€)",
+        image: "https://images.unsplash.com/photo-1529042410759-befb1204b468?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Préparer une boulette moelleuse (avec de la mie de pain et du lait dans la farce) pour éviter toute texture sèche.",
+        ingredients: [
+          { name: "Boeuf haché 5% MG", amount: 350, unit: "g", aisle: "Boucherie & Poissonnerie" },
+          { name: "Potimarron", amount: 600, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Pommes de terre", amount: 250, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Lait entier", amount: 100, unit: "ml", aisle: "Crèmerie & Frais" },
+          { name: "Beurre doux", amount: 20, unit: "g", aisle: "Crèmerie & Frais" }
+        ],
+        steps: [
+          "Couper potimarron et pommes de terre en morceaux et cuire 20 min dans l'eau frémissante.",
+          "Écraser en purée lisse avec le beurre et le lait.",
+          "Former de petites boulettes avec le boeuf haché et les poêler doucement 6 à 8 minutes jusqu'à cuisson complète."
+        ]
+      },
+      {
+        id: "rec_8",
+        title: "Risotto fondant aux poireaux & petits pois doux",
+        category: "Végétarien",
+        prepTime: "10 min",
+        cookTime: "25 min",
+        timeBadge: "Moyen (35 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Écraser légèrement les petits pois pour le bébé de 1 an afin d'éviter tout risque d'aspiration des grains ronds entiers.",
+        ingredients: [
+          { name: "Riz pour risotto", amount: 260, unit: "g", aisle: "Épicerie" },
+          { name: "Blancs de poireaux", amount: 300, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Petits pois surgelés", amount: 200, unit: "g", aisle: "Surgelés" },
+          { name: "Mascarpone ou crème", amount: 2, unit: "c.à.s", aisle: "Crèmerie & Frais" },
+          { name: "Huile d'olive", amount: 2, unit: "c.à.s", aisle: "Épicerie" }
+        ],
+        steps: [
+          "Émincer finement les poireaux et les fondre 5 min dans une sauteuse.",
+          "Ajouter le riz à risotto et nacrer 1 minute. Mouiller progressivement avec de l'eau tiède.",
+          "Ajouter les petits pois à mi-cuisson (au bout de 10 min).",
+          "Lier en fin de cuisson avec le mascarpone pour une texture ultra crémeuse."
+        ]
+      },
+      {
+        id: "rec_9",
+        title: "Filet de cabillaud, écrasé de patate douce & haricots verts",
+        category: "Poisson",
+        prepTime: "10 min",
+        cookTime: "15 min",
+        timeBadge: "Express (25 min)",
+        costBadge: "Modéré (€€)",
+        image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Le poisson blanc s'émiette parfaitement sous la langue du tout-petit. Les haricots verts bien cuits sont parfaits pour la préhension.",
+        ingredients: [
+          { name: "Dos de cabillaud", amount: 350, unit: "g", aisle: "Boucherie & Poissonnerie" },
+          { name: "Patate douce", amount: 500, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Haricots verts frais ou surgelés", amount: 350, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Huile de colza ou olive", amount: 2, unit: "c.à.s", aisle: "Épicerie" }
+        ],
+        steps: [
+          "Éplucher les patates douces, les faire cuire à la vapeur avec les haricots verts 15 min.",
+          "Pocher ou poêler délicatement le cabillaud 6 min.",
+          "Écraser la patate douce avec un filet d'huile riche en oméga-3.",
+          "Servir le cabillaud émietté à côté des légumes."
+        ]
+      },
+      {
+        id: "rec_10",
+        title: "Tarte rustique fine aux courgettes & chèvre doux",
+        category: "Tarte",
+        prepTime: "15 min",
+        cookTime: "25 min",
+        timeBadge: "Moyen (40 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1595854341625-f33ee10dbf94?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Découper une petite part sans croûte dure et tiède pour le bébé, la texture du chèvre frais fond sous le palais.",
+        ingredients: [
+          { name: "Pâte brisée pur beurre", amount: 1, unit: "rouleau", aisle: "Crèmerie & Frais" },
+          { name: "Courgettes", amount: 400, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Fromage de chèvre frais doux", amount: 150, unit: "g", aisle: "Crèmerie & Frais" },
+          { name: "Huile d'olive", amount: 1, unit: "c.à.s", aisle: "Épicerie" }
+        ],
+        steps: [
+          "Dérouler la pâte sur une plaque. Tartiner le fond avec le chèvre frais doux.",
+          "Disposer de fines rondelles de courgettes en rosace.",
+          "Rabattre légèrement les bords et enfourner 25 minutes à 190°C."
+        ]
+      },
+      {
+        id: "rec_11",
+        title: "Curry doux de pois chiches, épinards & lait de coco",
+        category: "Végétarien",
+        prepTime: "10 min",
+        cookTime: "15 min",
+        timeBadge: "Express (25 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Bien écraser les pois chiches à la fourchette pour le bébé de 1 an. Le lait de coco adoucit naturellement le plat.",
+        ingredients: [
+          { name: "Pois chiches cuits en bocal", amount: 400, unit: "g", aisle: "Épicerie" },
+          { name: "Épinards frais", amount: 250, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Lait de coco", amount: 250, unit: "ml", aisle: "Épicerie" },
+          { name: "Coulis de tomate", amount: 150, unit: "ml", aisle: "Épicerie" },
+          { name: "Riz blanc", amount: 200, unit: "g", aisle: "Épicerie" }
+        ],
+        steps: [
+          "Rincer les pois chiches.",
+          "Dans une casserole, mélanger le coulis de tomate, le lait de coco et les pois chiches pendant 10 min.",
+          "Ajouter les épinards pour les faire flétrir 3 minutes.",
+          "Servir avec le riz blanc chaud."
+        ]
+      },
+      {
+        id: "rec_12",
+        title: "Émincé de poulet fermier aux carottes vichy & semoule fine",
+        category: "Volaille",
+        prepTime: "10 min",
+        cookTime: "20 min",
+        timeBadge: "Rapide (30 min)",
+        costBadge: "Modéré (€€)",
+        image: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Tailler le poulet en fibres bien souples et préparer la semoule avec un filet d'huile d'olive pour une consistance facile à attraper.",
+        ingredients: [
+          { name: "Blancs de poulet", amount: 350, unit: "g", aisle: "Boucherie & Poissonnerie" },
+          { name: "Carottes", amount: 500, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Semoule moyenne de blé", amount: 200, unit: "g", aisle: "Épicerie" },
+          { name: "Beurre doux", amount: 20, unit: "g", aisle: "Crèmerie & Frais" }
+        ],
+        steps: [
+          "Cuire les carottes en rondelles fines dans un fond d'eau et une noisette de beurre jusqu'à ce qu'elles soient très tendres.",
+          "Dorer le poulet coupé en petits morceaux dans une poêle.",
+          "Gonfler la semoule avec de l'eau chaude et égrainer à la fourchette."
+        ]
+      },
+      {
+        id: "rec_13",
+        title: "Frittata campagnarde aux courgettes & petits pois",
+        category: "Œufs",
+        prepTime: "10 min",
+        cookTime: "15 min",
+        timeBadge: "Express (25 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1584776296944-ab6fb57b0bdd?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Découper de jolis triangles ou barres faciles à prendre en main pour l'enfant de 4 ans et le bébé de 1 an.",
+        ingredients: [
+          { name: "Œufs bio", amount: 6, unit: "pièces", aisle: "Crèmerie & Frais" },
+          { name: "Courgettes", amount: 300, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Petits pois surgelés", amount: 150, unit: "g", aisle: "Surgelés" },
+          { name: "Emmental râpé", amount: 50, unit: "g", aisle: "Crèmerie & Frais" }
+        ],
+        steps: [
+          "Poêler les dés de courgettes et les petits pois avec un peu d'huile d'olive 6 minutes.",
+          "Battre les œufs avec l'emmental, verser sur les légumes.",
+          "Cuire à feu doux avec un couvercle 8 à 10 minutes jusqu'à prise complète."
+        ]
+      },
+      {
+        id: "rec_14",
+        title: "Velouté doux de potimarron, châtaignes & croûtons dorés",
+        category: "Soupe repas",
+        prepTime: "15 min",
+        cookTime: "25 min",
+        timeBadge: "Moyen (40 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Texture onctueuse idéale pour débuter à la cuillère ou tremper des bâtonnets de pain moelleux sans sel.",
+        ingredients: [
+          { name: "Potimarron", amount: 800, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Pommes de terre", amount: 200, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Crème liquide entière", amount: 100, unit: "ml", aisle: "Crèmerie & Frais" },
+          { name: "Pain de mie ou baguette", amount: 2, unit: "tranches", aisle: "Épicerie" }
+        ],
+        steps: [
+          "Laver et couper le potimarron (la peau se mange si bio) et les pommes de terre en gros cubes.",
+          "Couvrir d'eau et cuire 20 min jusqu'à tendreté.",
+          "Mixer très finement avec la crème liquide pour une émulsion soyeuse.",
+          "Dorer de petits dés de pain pour les grands."
+        ]
+      },
+      {
+        id: "rec_15",
+        title: "Pâtes alphabet, sauce tomate douce & effiloché de jambon",
+        category: "Pâtes",
+        prepTime: "5 min",
+        cookTime: "12 min",
+        timeBadge: "Ultra express (17 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Les toutes petites pâtes lettres se mangent facilement à la cuillère sans risque d'étouffement. Succès garanti à 4 ans !",
+        ingredients: [
+          { name: "Pâtes alphabet ou coquillettes", amount: 250, unit: "g", aisle: "Épicerie" },
+          { name: "Coulis de tomate", amount: 300, unit: "ml", aisle: "Épicerie" },
+          { name: "Jambon blanc de qualité", amount: 3, unit: "tranches", aisle: "Boucherie & Poissonnerie" },
+          { name: "Huile d'olive", amount: 1, unit: "c.à.s", aisle: "Épicerie" }
+        ],
+        steps: [
+          "Cuire les petites pâtes dans un grand volume d'eau.",
+          "Chauffer le coulis de tomate avec une larme d'huile d'olive.",
+          "Égoutter les pâtes, mélanger à la sauce et ajouter le jambon coupé en petits confettis."
+        ]
+      },
+      {
+        id: "rec_16",
+        title: "Pancakes moelleux à la courge butternut & purée d'avocat",
+        category: "Dîner ludique",
+        prepTime: "15 min",
+        cookTime: "10 min",
+        timeBadge: "Express (25 min)",
+        costBadge: "Éco (€)",
+        image: "https://images.unsplash.com/photo-1528207775981-d50bc57762c1?w=600&auto=format&fit=crop&q=80",
+        babyTip: "Forme ronde ultra moelleuse parfaite pour les deux enfants. Riche en vitamines et sans sucre ajouté.",
+        ingredients: [
+          { name: "Farine de blé", amount: 180, unit: "g", aisle: "Épicerie" },
+          { name: "Purée de butternut ou potimarron", amount: 200, unit: "g", aisle: "Fruits & Légumes" },
+          { name: "Lait entier", amount: 150, unit: "ml", aisle: "Crèmerie & Frais" },
+          { name: "Œufs bio", amount: 2, unit: "pièces", aisle: "Crèmerie & Frais" },
+          { name: "Avocat mûr", amount: 2, unit: "pièces", aisle: "Fruits & Légumes" }
+        ],
+        steps: [
+          "Mélanger la purée de courge, la farine, les œufs et le lait jusqu'à consistance de pâte épaisse.",
+          "Faire dorer de petits tas de pâte 2 minutes de chaque côté dans une poêle chaude huilée.",
+          "Servir tiède avec des lamelles d'avocat doux bien mûr."
+        ]
+      }
+    ];
+
+    let state = {
+      selectedRecipeIds: [],
+      checkedGroceryItems: {},
+      activeTab: 'menu'
+    };
+
+    function saveState() {
+      try {
+        localStorage.setItem('ptitsplats_state', JSON.stringify({
+          selectedRecipeIds: state.selectedRecipeIds,
+          checkedGroceryItems: state.checkedGroceryItems
+        }));
+      } catch (e) {
+        console.warn("Storage warning:", e);
+      }
+    }
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem('ptitsplats_state');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          state.selectedRecipeIds = parsed.selectedRecipeIds || [];
+          state.checkedGroceryItems = parsed.checkedGroceryItems || {};
+        }
+      } catch (e) {
+        console.warn("Could not load stored state", e);
+      }
+
+      // Si aucune semaine active, générer 7 recettes aléatoires
+      if (!state.selectedRecipeIds || state.selectedRecipeIds.length !== 7) {
+        renewFullWeek(false);
+      }
+    }
+
+    function getRandomRecipes(count, excludeIds = []) {
+      const available = RECIPE_DATABASE.filter(r => !excludeIds.includes(r.id));
+      const shuffled = [...available].sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, count);
+    }
+
+    function renewFullWeek(confirmUser = true) {
+      if (confirmUser && !window.confirm("Voulez-vous générer 7 nouvelles recettes pour la semaine ? La liste de courses sera mise à jour.")) {
+        return;
+      }
+      
+      const newSeven = getRandomRecipes(7, []);
+      state.selectedRecipeIds = newSeven.map(r => r.id);
+      state.checkedGroceryItems = {}; // remise à zéro des courses pour le nouveau menu
+      saveState();
+      renderAll();
+    }
+
+    function handleRenewWeek() {
+      renewFullWeek(true);
+    }
+
+    function replaceSingleRecipe(recipeId, event) {
+      if (event) event.stopPropagation();
+
+      // Trouver une recette de remplacement qui n'est pas encore dans les 7 actuelles
+      const replacements = getRandomRecipes(1, state.selectedRecipeIds);
+      if (replacements.length === 0) {
+        alert("Toutes les recettes disponibles sont déjà sélectionnées !");
+        return;
+      }
+
+      const newRecipe = replacements[0];
+      const index = state.selectedRecipeIds.indexOf(recipeId);
+      if (index !== -1) {
+        state.selectedRecipeIds[index] = newRecipe.id;
+        saveState();
+        renderAll();
+      }
+    }
+
+    function computeConsolidatedGroceries() {
+      const selectedRecipes = state.selectedRecipeIds
+        .map(id => RECIPE_DATABASE.find(r => r.id === id))
+        .filter(Boolean);
+
+      const itemsMap = {};
+
+      selectedRecipes.forEach(recipe => {
+        recipe.ingredients.forEach(ing => {
+          // Clé unique par nom et unité pour additionner proprement
+          const key = `${ing.name.toLowerCase().trim()}_${ing.unit.toLowerCase().trim()}`;
+          if (!itemsMap[key]) {
+            itemsMap[key] = {
+              key: key,
+              name: ing.name,
+              amount: 0,
+              unit: ing.unit,
+              aisle: ing.aisle || "Épicerie"
+            };
+          }
+          itemsMap[key].amount += ing.amount;
+        });
+      });
+
+      // Regroupement par rayon
+      const aislesOrder = [
+        "Fruits & Légumes",
+        "Boucherie & Poissonnerie",
+        "Crèmerie & Frais",
+        "Épicerie",
+        "Surgelés"
+      ];
+
+      const aisles = {};
+      aislesOrder.forEach(a => aisles[a] = []);
+
+      Object.values(itemsMap).forEach(item => {
+        if (!aisles[item.aisle]) {
+          aisles[item.aisle] = [];
+        }
+        aisles[item.aisle].push(item);
+      });
+
+      // Trier les ingrédients par nom alphabétique dans chaque rayon
+      Object.keys(aisles).forEach(aisleName => {
+        aisles[aisleName].sort((a, b) => a.name.localeCompare(b.name));
+      });
+
+      return { aisles, totalCount: Object.keys(itemsMap).length };
+    }
+
+    function toggleGroceryCheck(itemKey) {
+      state.checkedGroceryItems[itemKey] = !state.checkedGroceryItems[itemKey];
+      saveState();
+      renderGroceryView();
+    }
+
+    function clearCheckedItems() {
+      state.checkedGroceryItems = {};
+      saveState();
+      renderGroceryView();
+    }
+
+    const DAYS_NAMES = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+
+    function renderMenuView() {
+      const container = document.getElementById('recipes-list');
+      const selectedRecipes = state.selectedRecipeIds
+        .map(id => RECIPE_DATABASE.find(r => r.id === id))
+        .filter(Boolean);
+
+      container.innerHTML = selectedRecipes.map((recipe, index) => {
+        const dayLabel = DAYS_NAMES[index] || `Repas ${index + 1}`;
+        return `
+          <article class="bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs transition hover:shadow-md active:bg-slate-50 cursor-pointer" onclick="openRecipeModal('${recipe.id}')">
+            <div class="relative h-44 w-full bg-slate-100 overflow-hidden">
+              <img src="${recipe.image}" alt="${recipe.title}" class="w-full h-full object-cover transition duration-300 hover:scale-105" loading="lazy">
+              <div class="absolute top-2.5 left-2.5 bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-1 rounded-xl shadow-xs">
+                ${dayLabel}
+              </div>
+              <button onclick="replaceSingleRecipe('${recipe.id}', event)" title="Changer cette recette" class="absolute top-2.5 right-2.5 bg-white/90 hover:bg-white text-slate-700 p-2 rounded-xl backdrop-blur-md shadow-sm transition active:scale-90 flex items-center gap-1 text-xs font-semibold">
+                <svg class="w-3.5 h-3.5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                <span class="text-[11px]">Remplacer</span>
+              </button>
+            </div>
+            <div class="p-3.5 space-y-2">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-teal-50 text-teal-700 border border-teal-200/60">
+                  ⏱️ ${recipe.timeBadge}
+                </span>
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200/60">
+                  💰 ${recipe.costBadge}
+                </span>
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600">
+                  ${recipe.category}
+                </span>
+              </div>
+              <h3 class="font-bold text-slate-900 text-sm sm:text-base leading-snug line-clamp-1">
+                ${recipe.title}
+              </h3>
+              <div class="bg-amber-50/70 border border-amber-200/60 rounded-xl p-2 flex items-start gap-2">
+                <span class="text-sm">👶</span>
+                <p class="text-[11px] text-amber-900 line-clamp-2 leading-relaxed">
+                  <strong>Bébé 1 an :</strong> ${recipe.babyTip}
+                </p>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderGroceryView() {
+      const { aisles, totalCount } = computeConsolidatedGroceries();
+      const container = document.getElementById('grocery-aisles-list');
+      
+      let checkedCount = 0;
+      Object.values(state.checkedGroceryItems).forEach(val => {
+        if (val) checkedCount++;
+      });
+
+      // Update counters & progress bar
+      document.getElementById('badge-grocery-count').innerText = Math.max(0, totalCount - checkedCount);
+      document.getElementById('grocery-progress-text').innerText = `${checkedCount} sur ${totalCount} articles achetés`;
+      const pct = totalCount > 0 ? Math.round((checkedCount / totalCount) * 100) : 0;
+      document.getElementById('grocery-progress-bar').style.width = `${pct}%`;
+
+      // Rendu des rayons
+      let html = "";
+      Object.keys(aisles).forEach(aisleName => {
+        const items = aisles[aisleName];
+        if (items.length === 0) return;
+
+        html += `
+          <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs space-y-2.5">
+            <div class="flex items-center justify-between pb-1 border-b border-slate-100">
+              <h3 class="font-bold text-xs uppercase tracking-wider text-slate-500">${aisleName}</h3>
+              <span class="text-xs font-semibold px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full">${items.length}</span>
+            </div>
+            <div class="space-y-1.5 pt-1">
+        `;
+
+        items.forEach(item => {
+          const isDone = !!state.checkedGroceryItems[item.key];
+          html += `
+            <div class="flex items-center space-x-3 p-2 rounded-xl transition hover:bg-slate-50">
+              <input type="checkbox" id="chk_${item.key}" class="checkbox-done w-5 h-5 rounded-lg text-brand-600 focus:ring-brand-500 border-slate-300 transition cursor-pointer" ${isDone ? 'checked' : ''} onchange="toggleGroceryCheck('${item.key}')">
+              <label for="chk_${item.key}" class="flex-1 flex items-baseline justify-between cursor-pointer">
+                <span class="item-text text-sm font-medium text-slate-800 transition ${isDone ? 'line-through text-slate-400' : ''}">${item.name}</span>
+                <span class="text-xs font-bold ${isDone ? 'text-slate-400' : 'text-brand-700'} bg-slate-100 px-2 py-0.5 rounded-lg shrink-0 ml-2">
+                  ${item.amount} ${item.unit}
+                </span>
+              </label>
+            </div>
+          `;
+        });
+
+        html += `
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function renderAll() {
+      renderMenuView();
+      renderGroceryView();
+    }
+
+    function switchTab(tabId) {
+      state.activeTab = tabId;
+      const tabMenu = document.getElementById('tab-content-menu');
+      const tabGrocery = document.getElementById('tab-content-grocery');
+      const btnMenu = document.getElementById('nav-btn-menu');
+      const btnGrocery = document.getElementById('nav-btn-grocery');
+
+      if (tabId === 'menu') {
+        tabMenu.classList.remove('hidden');
+        tabGrocery.classList.add('hidden');
+        btnMenu.className = "flex flex-col items-center gap-1 text-brand-600 font-semibold text-xs py-1 px-4 transition";
+        btnGrocery.className = "flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 font-semibold text-xs py-1 px-4 transition relative";
+      } else {
+        tabMenu.classList.add('hidden');
+        tabGrocery.classList.remove('hidden');
+        btnMenu.className = "flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 font-semibold text-xs py-1 px-4 transition";
+        btnGrocery.className = "flex flex-col items-center gap-1 text-brand-600 font-semibold text-xs py-1 px-4 transition relative";
+        renderGroceryView();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openRecipeModal(recipeId) {
+      const recipe = RECIPE_DATABASE.find(r => r.id === recipeId);
+      if (!recipe) return;
+
+      document.getElementById('modal-img').src = recipe.image;
+      document.getElementById('modal-title').innerText = recipe.title;
+      document.getElementById('modal-baby-tip').innerText = recipe.babyTip;
+
+      // Badges
+      document.getElementById('modal-badges').innerHTML = `
+        <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-teal-50 text-teal-700 border border-teal-200">⏱️ Prépa: ${recipe.prepTime} • Cuisson: ${recipe.cookTime}</span>
+        <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-50 text-amber-700 border border-amber-200">💰 ${recipe.costBadge}</span>
+      `;
+
+      // Ingrédients
+      document.getElementById('modal-ingredients').innerHTML = recipe.ingredients.map(ing => `
+        <li class="py-1.5 flex justify-between items-center">
+          <span>${ing.name}</span>
+          <span class="font-bold text-xs bg-white px-2 py-0.5 rounded-md border border-slate-200 text-slate-800">${ing.amount} ${ing.unit}</span>
+        </li>
+      `).join('');
+
+      // Étapes
+      document.getElementById('modal-steps').innerHTML = recipe.steps.map(step => `
+        <li class="pl-1">${step}</li>
+      `).join('');
+
+      const modal = document.getElementById('recipe-modal');
+      modal.classList.remove('hidden');
+    }
+
+    function closeRecipeModal() {
+      document.getElementById('recipe-modal').classList.add('hidden');
+    }
+
+    // Fermer le modal au clic en dehors du contenu
+    document.getElementById('recipe-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeRecipeModal();
+    });
+
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .catch(err => console.debug("ServiceWorker info:", err));
+      });
+    }
+
+    // Initialisation au chargement
+    window.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      renderAll();
+    });
+  </script>
+</body>
+</html>
